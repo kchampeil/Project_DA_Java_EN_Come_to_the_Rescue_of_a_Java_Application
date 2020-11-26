@@ -1,59 +1,50 @@
 package com.hemebiotech.analytics;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FileNotFoundException;
+import java.util.*;
 
+/**
+ * Read a file containing symptoms (list of symptoms not sorted and may be duplicated),
+ * count the number of occurrences for each symptom
+ * and write in an output file an alphabetically sorted list of symptoms.
+ * One line by symptom with its number of occurrences identified in the input file.
+ *
+ * @author Karine
+ */
 public class AnalyticsCounter {
-	private static int headacheCount = 0;
-	private static int rashCount = 0;
-	private static int dialatedpupilCount = 0;
 
-	private static final String SYMPTOMSFILENAME = "C:\\tests\\P2\\symptoms.txt";
-	private static final String RESULTSFILENAME = "C:\\tests\\P2\\results.out";
+	/**
+	 * Filename (including relative filepath) of the input file containing the list of symptoms
+	 */
+	private static final String SYMPTOMSFILENAME = "Project02Eclipse\\tests\\symptoms.txt";
 
-	public static void main(String[] args) throws Exception {
-		try {
-			// first get input
+	/**
+	 * Filename (including relative filepath) of the output file
+	 */
+	private static final String RESULTSFILENAME = "Project02Eclipse\\tests\\results.out";
 
-			BufferedReader reader = new BufferedReader (new FileReader(SYMPTOMSFILENAME));
-			String line = reader.readLine();
+	public static void main(String[] args) {
 
-			while (line != null) {
-				System.out.println("symptom from file: " + line);
-				switch (line) {
-					case "headache":
-						headacheCount++;
-						break;
-					case "rash":
-						rashCount++;
-						break;
-					case "dialated pupils":
-						dialatedpupilCount++;
-						break;
-				}
+		// First, read file with symptoms and put
+		ReadSymptomDataFromFile readSymptomDataFromFile = new ReadSymptomDataFromFile(SYMPTOMSFILENAME);
+		List<String> listOfSymptoms = readSymptomDataFromFile.getSymptoms();
+		System.out.println("Symptom file contains : " + listOfSymptoms.size() + " occurrences \n");
 
-				line = reader.readLine();	// get another symptom
-			}
+		if (listOfSymptoms.size()!=0) {
 
-			reader.close();
+			// tests to remove at the end
+			System.out.println("first before sorting : " + listOfSymptoms.get(0));
+			System.out.println("last before sorting : " + listOfSymptoms.get(listOfSymptoms.size()-1));
 
-		} catch (FileNotFoundException e) {
-			System.out.println("input file or folder for input file does not exist");
-			return;
-		}
+			// Then, sort alphabetically the listOfSymptoms
+			Collections.sort(listOfSymptoms);
 
-		
-		// next generate output
-		try {
-			FileWriter writer = new FileWriter(RESULTSFILENAME);
-			writer.write("headache: " + headacheCount + "\n");
-			writer.write("rash: " + rashCount + "\n");
-			writer.write("dialated pupils: " + dialatedpupilCount + "\n");
-			writer.close();
-		} catch (FileNotFoundException e) {
-			System.out.println("folder for output file not available");
+			// tests to remove at the end
+			System.out.println("first after sorting : " + listOfSymptoms.get(0));
+			System.out.println("last after sorting : " + listOfSymptoms.get(listOfSymptoms.size()-1));
+
+			// Finally, generate output
+			WriteSymptomDataIntoFile writeSymptomDataIntoFile = new WriteSymptomDataIntoFile(RESULTSFILENAME);
+			writeSymptomDataIntoFile.writeSymptoms(listOfSymptoms);
 		}
 	}
 }
