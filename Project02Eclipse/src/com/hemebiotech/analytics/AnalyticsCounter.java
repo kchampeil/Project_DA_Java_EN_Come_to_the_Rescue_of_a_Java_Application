@@ -1,14 +1,23 @@
 package com.hemebiotech.analytics;
 
+import com.hemebiotech.count.CountFrequencyOfSymptoms;
+import com.hemebiotech.count.ICount;
+import com.hemebiotech.read.ISymptomReader;
+import com.hemebiotech.read.ReadSymptomDataFromFile;
+import com.hemebiotech.write.ISymptomWriter;
+import com.hemebiotech.write.WriteSymptomDataIntoFile;
+
 import java.util.*;
 
 /**
  * Read a file containing symptoms (list of symptoms not sorted and may be duplicated),
- * count the number of occurrences for each symptom
- * and write in an output file an alphabetically sorted list of symptoms.
- * One line by symptom with its number of occurrences identified in the input file.
+ * count the frequency of each symptom and store the couple in a map
+ * then write in an output file the symptoms and their frequencies.
+ *
+ * Output file contains one line by symptom with its number of occurrences in the input file.
  *
  * @author Karine
+ * @version 1.0
  */
 public class AnalyticsCounter {
 
@@ -22,29 +31,31 @@ public class AnalyticsCounter {
 	 */
 	private static final String RESULTSFILENAME = "Project02Eclipse\\tests\\results.out";
 
+	/**
+	 * First, read file with symptoms and put them in a list of strings listOfSymptoms.
+	 * Then, count the frequency of each symptom and fill a map symptom/frequency mapOfSymptomsAndFrequencies.
+	 * Finally, generate output file from the map mapOfSymptomsAndFrequencies.
+	 *
+	 * @param args
+	 * @see ReadSymptomDataFromFile
+	 * @see CountFrequencyOfSymptoms
+	 * @see WriteSymptomDataIntoFile
+	 */
 	public static void main(String[] args) {
-
-		// First, read file with symptoms and put
-		ReadSymptomDataFromFile readSymptomDataFromFile = new ReadSymptomDataFromFile(SYMPTOMSFILENAME);
-		List<String> listOfSymptoms = readSymptomDataFromFile.getSymptoms();
-		System.out.println("Symptom file contains : " + listOfSymptoms.size() + " occurrences \n");
+		// First, read file with symptoms and put them in listOfSymptoms
+		ISymptomReader symptomReader = new ReadSymptomDataFromFile(SYMPTOMSFILENAME);
+		List<String> listOfSymptoms = symptomReader.getSymptoms();
 
 		if (listOfSymptoms.size()!=0) {
 
-			// tests to remove at the end
-			System.out.println("first before sorting : " + listOfSymptoms.get(0));
-			System.out.println("last before sorting : " + listOfSymptoms.get(listOfSymptoms.size()-1));
+			//Then, count the frequency of each symptom and fill a sorted map symptom/frequency
+			ICount count = new CountFrequencyOfSymptoms(listOfSymptoms);
+			Map<String, Integer> mapOfSymptomsAndFrequencies = count.count();
 
-			// Then, sort alphabetically the listOfSymptoms
-			Collections.sort(listOfSymptoms);
+			// Finally, generate output file from consolidatedListOfSymptoms
+			ISymptomWriter symptomWriter = new WriteSymptomDataIntoFile(RESULTSFILENAME);
+			symptomWriter.writeSymptoms(mapOfSymptomsAndFrequencies);
 
-			// tests to remove at the end
-			System.out.println("first after sorting : " + listOfSymptoms.get(0));
-			System.out.println("last after sorting : " + listOfSymptoms.get(listOfSymptoms.size()-1));
-
-			// Finally, generate output
-			WriteSymptomDataIntoFile writeSymptomDataIntoFile = new WriteSymptomDataIntoFile(RESULTSFILENAME);
-			writeSymptomDataIntoFile.writeSymptoms(listOfSymptoms);
-		}
+		} else System.out.println("No symptom in the input file");
 	}
 }
